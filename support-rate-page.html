@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Zoom with Titles and Sidebar</title>
+
+    <style>
+        /* Styling for body and container */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            height: 100vh;
+            background-color: #f0f8ff;
+        }
+
+        /* Main container to hold the grid and sidebar */
+        .container {
+            display: flex;  /* Use flexbox to position images and sidebar */
+            height: 100vh;
+            width: 100%;
+        }
+
+        /* Grid for displaying images in a 2x2 format */
+        .image-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            padding: 20px;
+            flex: 2;  /* Make image grid take more space than sidebar */
+        }
+
+        /* Image container with title */
+        .image-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Styling for image titles */
+        .image-item h3 {
+            margin-bottom: 10px;
+            font-size: 18px;
+            color: #333;
+        }
+
+        /* Styling for images */
+        .image-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 15px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, transform-origin 0.3s ease;
+            cursor: zoom-in;
+        }
+
+        /* Sidebar styling */
+        .sidebar {
+            background-color: #ffe4e1;
+            padding: 30px;
+            flex: 1;  /* Make sidebar smaller than image grid */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        /* Default sidebar message */
+        .sidebar h2 {
+            font-size: 24px;
+            text-align: center;
+            color: #ff69b4;
+            margin: 0;
+            padding: 20px;
+        }
+
+        /* Fun bubble style for the images' descriptions */
+        .bubble {
+            background-color: #fff;
+            border-radius: 20px;
+            padding: 20px;
+            color: #333;
+            font-size: 18px;
+            box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Style for close button */
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 20px;
+            cursor: pointer;
+            background: #ff69b4;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            display: none;
+        }
+
+        /* Close button hover effect */
+        .close-btn:hover {
+            background-color: #ff1493;
+        }
+    </style>
+
+</head>
+<body>
+
+<div class="container">
+    <!-- 2x2 Image Grid with titles -->
+    <div class="image-grid">
+        <!-- Each image-item contains the title and the image -->
+        <div class="image-item">
+            <h3>Clean Air</h3>
+            <img src="https://raw.githubusercontent.com/Skylarla/image-storage/main/clean-air.png" alt="Clean Air" class="zoomable" onclick="showDescription('Clean Air: This image represents the importance of clean air for our environment and health.')">
+        </div>
+        <div class="image-item">
+            <h3>Clean Energy</h3>
+            <img src="https://raw.githubusercontent.com/Skylarla/image-storage/main/clean-energy.png" alt="Clean Energy" class="zoomable" onclick="showDescription('Clean Energy: Clean energy like solar and wind helps reduce carbon emissions.')">
+        </div>
+        <div class="image-item">
+            <h3>Climate Agreement</h3>
+            <img src="https://raw.githubusercontent.com/Skylarla/image-storage/main/climate-agreement.png" alt="Climate Agreement" class="zoomable" onclick="showDescription('Climate Agreement: International agreements are vital for addressing global warming.')">
+        </div>
+        <div class="image-item">
+            <h3>GHG Emissions</h3>
+            <img src="https://raw.githubusercontent.com/Skylarla/image-storage/main/ghg-emissions.png" alt="GHG Emissions" class="zoomable" onclick="showDescription('GHG Emissions: Reducing greenhouse gas emissions is critical for fighting climate change.')">
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <button class="close-btn" id="close-btn" onclick="resetSidebar()">X</button>
+        <h2 id="sidebar-content">Please click on an image to get more details!</h2>
+    </div>
+</div>
+
+<!-- JavaScript for zoom control and sidebar functionality -->
+<script>
+    const images = document.querySelectorAll('.zoomable'); // Select all zoomable images
+    const sidebarContent = document.getElementById('sidebar-content');
+    const closeButton = document.getElementById('close-btn');
+
+    images.forEach(image => {
+        let scale = 1;  // Default scale
+
+        // Mousemove event listener to set transform-origin based on cursor position
+        image.addEventListener('mousemove', (event) => {
+            // Get mouse position relative to image
+            const rect = image.getBoundingClientRect();
+            const x = event.clientX - rect.left;  // x position relative to image
+            const y = event.clientY - rect.top;   // y position relative to image
+
+            // Set the transform origin to mouse position
+            image.style.transformOrigin = `${x}px ${y}px`;
+        });
+
+        // Mouse wheel event listener for zooming
+        image.addEventListener('wheel', (event) => {
+            event.preventDefault();  // Prevent page scrolling when zooming
+            if (event.deltaY < 0) {
+                // Scroll up to zoom in
+                scale += 0.1;
+            } else {
+                // Scroll down to zoom out
+                scale = Math.max(1, scale - 0.1);  // Prevent scaling below 1 (original size)
+            }
+            image.style.transform = `scale(${scale})`;  // Apply the scale transformation
+        });
+
+        // Reset zoom when mouse leaves the image
+        image.addEventListener('mouseleave', () => {
+            scale = 1;  // Reset scale to default
+            image.style.transform = `scale(${scale})`;  // Reset the scale transformation
+        });
+    });
+
+    // JavaScript function to show description in the sidebar when image is clicked
+    function showDescription(description) {
+        sidebarContent.innerHTML = `<div class="bubble">${description}</div>`;
+        closeButton.style.display = 'block';  // Show the close button
+    }
+
+    // Reset sidebar to default message
+    function resetSidebar() {
+        sidebarContent.innerHTML = 'Please click on an image to get more details!';
+        closeButton.style.display = 'none';  // Hide the close button
+    }
+</script>
+
+</body>
+</html>
