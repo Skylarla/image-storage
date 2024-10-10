@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Policy Support Maps</title>
+    <script src='https://api.mapbox.com/mapbox-gl-js/v3.4.0/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v3.4.0/mapbox-gl.css' rel='stylesheet' />
+    <style>
+        body { margin: 0; padding: 0; }
+        #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+        #controls { position: absolute; top: 10px; right: 10px; background: white; padding: 10px; z-index: 1; }
+        #info { 
+            position: absolute; 
+            bottom: 10px; 
+            right: 10px; 
+            background: lightblue; 
+            padding: 10px; 
+            z-index: 1; 
+            width: 30%; 
+            font-size: 14px; 
+            border-radius: 10px; 
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.1); 
+        }
+        #legend { 
+            position: absolute; 
+            bottom: 10px; 
+            left: 10px; 
+            background: white; 
+            padding: 10px; 
+            font-size: 12px; 
+            border: 1px solid #ddd; 
+            border-radius: 5px;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+            margin-right: 5px;
+        }
+        .btn { 
+            margin: 5px; 
+            padding: 5px 10px; 
+            background-color: lightgray; 
+            border: none; 
+            cursor: pointer; 
+        }
+        .btn.active { background-color: lightblue; }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <div id="controls">
+        <button class="btn" onclick="showLayer('clean-air')">Clean Air</button>
+        <button class="btn" onclick="showLayer('climate-agreement')">Climate Agreement</button>
+        <button class="btn" onclick="showLayer('ghg-emissions')">GHG Emissions</button>
+        <button class="btn" onclick="showLayer('clean-energy')">Clean Energy</button>
+    </div>
+    <div id="info">Click a policy to see details here.</div>
+
+    <!-- 图例部分 -->
+    <div id="legend">
+        <div><strong>GHG Emissions Support Rate</strong></div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: hsl(154, 88%, 91%);"></div>
+            <span>Less than 30%</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: hsl(154, 80%, 77%);"></div>
+            <span>30% - 50%</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: hsl(154, 74%, 49%);"></div>
+            <span>50% - 60%</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: hsl(154, 84%, 37%);"></div>
+            <span>60% - 70%</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: hsl(154, 87%, 24%);"></div>
+            <span>70% - 80%</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: hsl(154, 96%, 13%);"></div>
+            <span>80% - 100%</span>
+        </div>
+    </div>
+
+    <script>
+        mapboxgl.accessToken = 'pk.eyJ1Ijoic2t5bGFybGEiLCJhIjoiY20wNno0cmt2MGFhdjJzb3ExcGFxNm80NSJ9._xRMTsmMusDyDfQuKPNaKA';
+        const map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/skylarla/cm1y5xmjz00cm01pd88bh4t9y', // 替换为你的 Mapbox 风格 URL
+            center: [-98.5795, 39.8283], // 美国的经纬度
+            zoom: 4
+        });
+
+        // 默认显示 clean-air 图层
+        let activeLayer = 'clean-air';
+
+        map.on('load', () => {
+            // 添加所有政策图层
+            map.addLayer({
+                id: 'clean-air',
+                type: 'fill',
+                source: 'skylarla.7a1ush8y', // 你需要的 tileset 源 ID
+                'source-layer': 'State-boundary', // 使用你的 source-layer 名称
+                paint: {
+                    'fill-color': ['step', ['get', 'clean_air'], '#f1eef6', 30, '#d4b9da', 50, '#c994c7', 60, '#df65b0', 70, '#dd1c77', 100, '#980043'],
+                    'fill-opacity': 0.8
+                }
+            });
+
+            map.addLayer({
+                id: 'climate-agreement',
+                type: 'fill',
+                source: 'skylarla.7a1ush8y', // 你需要的 tileset 源 ID
+                'source-layer': 'State-boundary', // 使用你的 source-layer 名称
+                paint: {
+                    'fill-color': ['step', ['get', 'climate_agreement'], '#f1eef6', 30, '#d4b9da', 50, '#c994c7', 60, '#df65b0', 70, '#dd1c77', 100, '#980043'],
+                    'fill-opacity': 0.8
+                },
+                layout: { visibility: 'none' }  // 默认隐藏
+            });
+
+            map.addLayer({
+                id: 'ghg-emissions',
+                type: 'fill',
+                source: 'skylarla.7a1ush8y', // 你需要的 tileset 源 ID
+                'source-layer': 'State-boundary', // 使用你的 source-layer 名称
+                paint: {
+                    'fill-color': ['step', ['get', 'ghg_emissions'], '#fee5d9', 30, '#fcae91', 50, '#fb6a4a', 70, '#cb181d'],
+                    'fill-opacity': 0.8
+                },
+                layout: { visibility: 'none' }  // 默认隐藏
+            });
+
+            map.addLayer({
+                id: 'clean-energy',
+                type: 'fill',
+                source: 'skylarla.7a1ush8y', // 你需要的 tileset 源 ID
+                'source-layer': 'State-boundary', // 使用你的 source-layer 名称
+                paint: {
+                    'fill-color': ['step', ['get', 'clean_energy'], '#edf8fb', 30, '#b2e2e2', 50, '#66c2a4', 70, '#238b45'],
+                    'fill-opacity': 0.8
+                },
+                layout: { visibility: 'none' }  // 默认隐藏
+            });
+        });
+
+        // 切换图层显示
+        function showLayer(layer) {
+            // 隐藏当前图层
+            map.setLayoutProperty(activeLayer, 'visibility', 'none');
+
+            // 显示新的图层
+            map.setLayoutProperty(layer, 'visibility', 'visible');
+
+            // 更新 activeLayer
+            activeLayer = layer;
+
+            // 更新下方文本框内容
+            const infoBox = document.getElementById('info');
+            switch(layer) {
+                case 'clean-air':
+                    infoBox.innerHTML = 'Clean Air Policy: This policy focuses on air quality improvement.';
+                    break;
+                case 'climate-agreement':
+                    infoBox.innerHTML = 'Climate Agreement: International agreements on reducing emissions.';
+                    break;
+                case 'ghg-emissions':
+                    infoBox.innerHTML = 'GHG Emissions: Greenhouse gas emissions policies.';
+                    break;
+                case 'clean-energy':
+                    infoBox.innerHTML = 'Clean Energy: Policies promoting renewable energy sources.';
+                    break;
+            }
+        }
+    </script>
+</body>
+</html>
