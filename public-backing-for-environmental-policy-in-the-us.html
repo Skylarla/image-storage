@@ -12,13 +12,13 @@
         #controls { position: absolute; top: 10px; right: 10px; background: white; padding: 10px; z-index: 1; }
         #info { 
             position: absolute; 
-            bottom: 20px;  /* 调整位置 */
-            right: 20px;  /* 靠近地图右边 */
+            bottom: 20px;  
+            right: 20px;  
             background: lightblue; 
-            padding: 15px;  /* 增加内边距 */
+            padding: 15px;  
             z-index: 1; 
-            font-size: 18px;  /* 增大字体 */
-            max-width: 250px;  /* 限制宽度，避免变成长方形 */
+            font-size: 18px;  
+            max-width: 250px;  
             border-radius: 10px; 
             box-shadow: 2px 2px 5px rgba(0,0,0,0.1); 
         }
@@ -97,68 +97,71 @@
         mapboxgl.accessToken = 'pk.eyJ1Ijoic2t5bGFybGEiLCJhIjoiY20wNno0cmt2MGFhdjJzb3ExcGFxNm80NSJ9._xRMTsmMusDyDfQuKPNaKA';
         const map = new mapboxgl.Map({
             container: 'map',
-            style: 'mapbox://styles/skylarla/cm1y5xmjz00cm01pd88bh4t9y', // 替换为你的 Mapbox 风格 URL
-            center: [-98.5795, 39.8283], // 美国的经纬度
+            style: 'mapbox://styles/skylarla/cm1y5xmjz00cm01pd88bh4t9y', 
+            center: [-98.5795, 39.8283], 
             zoom: 4
         });
 
-        // 默认显示 clean-air 图层
-        let activeLayer = 'clean-air';
+        let activeLayer = 'clean-air';  // 默认显示的图层
 
         map.on('load', () => {
             // 添加所有政策图层
             map.addLayer({
                 id: 'clean-air',
                 type: 'fill',
-                source: 'skylarla.7a1ush8y', // 你需要的 tileset 源 ID
-                'source-layer': 'State-boundary', // 使用你的 source-layer 名称
+                source: 'skylarla.7a1ush8y', 
+                'source-layer': 'State-boundary', 
                 paint: {
                     'fill-color': ['step', ['get', 'clean_air'], '#f1eef6', 30, '#d4b9da', 50, '#c994c7', 60, '#df65b0', 70, '#dd1c77', 100, '#980043'],
                     'fill-opacity': 0.8
-                }
+                },
+                layout: { visibility: 'visible' }  // 初始可见
             });
 
             map.addLayer({
                 id: 'climate-agreement',
                 type: 'fill',
-                source: 'skylarla.7a1ush8y', // 你需要的 tileset 源 ID
-                'source-layer': 'State-boundary', // 使用你的 source-layer 名称
+                source: 'skylarla.7a1ush8y', 
+                'source-layer': 'State-boundary', 
                 paint: {
                     'fill-color': ['step', ['get', 'climate_agreement'], '#f1eef6', 30, '#d4b9da', 50, '#c994c7', 60, '#df65b0', 70, '#dd1c77', 100, '#980043'],
                     'fill-opacity': 0.8
                 },
-                layout: { visibility: 'none' }  // 默认隐藏
+                layout: { visibility: 'none' }  // 初始不可见
             });
 
             map.addLayer({
                 id: 'ghg-emissions',
                 type: 'fill',
-                source: 'skylarla.7a1ush8y', // 你需要的 tileset 源 ID
-                'source-layer': 'State-boundary', // 使用你的 source-layer 名称
+                source: 'skylarla.7a1ush8y', 
+                'source-layer': 'State-boundary', 
                 paint: {
                     'fill-color': ['step', ['get', 'ghg_emissions'], '#fee5d9', 30, '#fcae91', 50, '#fb6a4a', 70, '#cb181d'],
                     'fill-opacity': 0.8
                 },
-                layout: { visibility: 'none' }  // 默认隐藏
+                layout: { visibility: 'none' }  // 初始不可见
             });
 
             map.addLayer({
                 id: 'clean-energy',
                 type: 'fill',
-                source: 'skylarla.7a1ush8y', // 你需要的 tileset 源 ID
-                'source-layer': 'State-boundary', // 使用你的 source-layer 名称
+                source: 'skylarla.7a1ush8y', 
+                'source-layer': 'State-boundary', 
                 paint: {
                     'fill-color': ['step', ['get', 'clean_energy'], '#edf8fb', 30, '#b2e2e2', 50, '#66c2a4', 70, '#238b45'],
                     'fill-opacity': 0.8
                 },
-                layout: { visibility: 'none' }  // 默认隐藏
+                layout: { visibility: 'none' }  // 初始不可见
             });
         });
 
         // 切换图层显示
         function showLayer(layer) {
-            // 隐藏当前图层
-            map.setLayoutProperty(activeLayer, 'visibility', 'none');
+            // 隐藏所有图层
+            const layers = ['clean-air', 'climate-agreement', 'ghg-emissions', 'clean-energy'];
+            layers.forEach((l) => {
+                map.setLayoutProperty(l, 'visibility', 'none');
+            });
 
             // 显示新的图层
             map.setLayoutProperty(layer, 'visibility', 'visible');
