@@ -9,18 +9,22 @@
     <style>
         body { margin: 0; padding: 0; }
         #map { position: absolute; top: 0; bottom: 0; width: 100%; }
-        #controls { position: absolute; top: 10px; right: 10px; background: white; padding: 10px; z-index: 1; }
+        #controls { position: absolute; top: 10px; right: 60px; background: white; padding: 10px; z-index: 1; } 
         #info { 
             position: absolute; 
-            bottom: 20px;  
-            right: 20px;  
-            background: lightblue; 
+            top: 70px;  
+            right: 60px;  
+            background: rgba(173, 216, 230, 0.5);  /* 50% transparent background */
             padding: 15px;  
             z-index: 1; 
             font-size: 18px;  
             max-width: 250px;  
             border-radius: 10px; 
             box-shadow: 2px 2px 5px rgba(0,0,0,0.1); 
+            height: auto;  
+            max-height: 60px;  /* Initial collapsed height */
+            overflow: hidden;  
+            transition: max-height 0.5s ease-out;  /* Expand downwards animation */
         }
         #legend { 
             position: absolute; 
@@ -64,7 +68,7 @@
     </div>
     <div id="info">Click a policy to see details here.</div>
 
-    <!-- 图例部分 -->
+    <!-- Legend Section -->
     <div id="legend">
         <div><strong>Support Rate</strong></div>
         <div class="legend-item">
@@ -102,10 +106,9 @@
             zoom: 4
         });
 
-        let activeLayer = 'clean-air';  // 默认显示的图层
+        let activeLayer = 'clean-air';  
 
         map.on('load', () => {
-            // 添加所有政策图层
             map.addLayer({
                 id: 'clean-air',
                 type: 'fill',
@@ -115,7 +118,7 @@
                     'fill-color': ['step', ['get', 'clean_air'], '#f1eef6', 30, '#d4b9da', 50, '#c994c7', 60, '#df65b0', 70, '#dd1c77', 100, '#980043'],
                     'fill-opacity': 0.8
                 },
-                layout: { visibility: 'visible' }  // 初始可见
+                layout: { visibility: 'visible' }
             });
 
             map.addLayer({
@@ -127,7 +130,7 @@
                     'fill-color': ['step', ['get', 'climate_agreement'], '#f1eef6', 30, '#d4b9da', 50, '#c994c7', 60, '#df65b0', 70, '#dd1c77', 100, '#980043'],
                     'fill-opacity': 0.8
                 },
-                layout: { visibility: 'none' }  // 初始不可见
+                layout: { visibility: 'none' }  
             });
 
             map.addLayer({
@@ -139,7 +142,7 @@
                     'fill-color': ['step', ['get', 'ghg_emissions'], '#fee5d9', 30, '#fcae91', 50, '#fb6a4a', 70, '#cb181d'],
                     'fill-opacity': 0.8
                 },
-                layout: { visibility: 'none' }  // 初始不可见
+                layout: { visibility: 'none' }  
             });
 
             map.addLayer({
@@ -151,26 +154,21 @@
                     'fill-color': ['step', ['get', 'clean_energy'], '#edf8fb', 30, '#b2e2e2', 50, '#66c2a4', 70, '#238b45'],
                     'fill-opacity': 0.8
                 },
-                layout: { visibility: 'none' }  // 初始不可见
+                layout: { visibility: 'none' }  
             });
         });
 
-        // 切换图层显示
         function showLayer(layer) {
-            // 隐藏所有图层
             const layers = ['clean-air', 'climate-agreement', 'ghg-emissions', 'clean-energy'];
             layers.forEach((l) => {
                 map.setLayoutProperty(l, 'visibility', 'none');
             });
 
-            // 显示新的图层
             map.setLayoutProperty(layer, 'visibility', 'visible');
 
-            // 更新 activeLayer
-            activeLayer = layer;
-
-            // 更新下方文本框内容
             const infoBox = document.getElementById('info');
+            infoBox.style.maxHeight = '150px';  // Set max height for expansion
+
             switch(layer) {
                 case 'clean-air':
                     infoBox.innerHTML = 'Clean Air Policy: Strengthen the environmental protection agency enforcement of the clean air act and clean water act even if it costs U.S. jobs.';
