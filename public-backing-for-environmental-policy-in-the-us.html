@@ -12,13 +12,13 @@
         #controls { position: absolute; top: 10px; right: 10px; background: white; padding: 10px; z-index: 1; }
         #info { 
             position: absolute; 
-            bottom: 10px; 
-            right: 10px; 
+            bottom: 20px;  /* 调整位置 */
+            right: 20px;  /* 靠近地图右边 */
             background: lightblue; 
-            padding: 10px; 
+            padding: 15px;  /* 增加内边距 */
             z-index: 1; 
-            width: 30%; 
-            font-size: 14px; 
+            font-size: 18px;  /* 增大字体 */
+            max-width: 250px;  /* 限制宽度，避免变成长方形 */
             border-radius: 10px; 
             box-shadow: 2px 2px 5px rgba(0,0,0,0.1); 
         }
@@ -170,16 +170,16 @@
             const infoBox = document.getElementById('info');
             switch(layer) {
                 case 'clean-air':
-                    infoBox.innerHTML = 'Clean Air Policy: Strengthen the Environmental Protection Agency enforcement of the Clean Air Act and Clean Water Act even if it costs U.S. jobs';
+                    infoBox.innerHTML = 'Clean Air Policy: This policy focuses on air quality improvement.';
                     break;
                 case 'climate-agreement':
-                    infoBox.innerHTML = 'Climate Agreement: The United States re-joins the Paris Climate Agreement.';
+                    infoBox.innerHTML = 'Climate Agreement: International agreements on reducing emissions.';
                     break;
                 case 'ghg-emissions':
-                    infoBox.innerHTML = 'GHG Emissions: Give the Environmental Protection Agency power to regulate Carbon Dioxide emissions.';
+                    infoBox.innerHTML = 'GHG Emissions: Greenhouse gas emissions policies.';
                     break;
                 case 'clean-energy':
-                    infoBox.innerHTML = 'Clean Energy: Order all federal agencies to buy clean energy, purchase electric vehicles, and make federal buildings energy efficient.';
+                    infoBox.innerHTML = 'Clean Energy: Policies promoting renewable energy sources.';
                     break;
             }
         }
